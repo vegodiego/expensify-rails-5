@@ -1,0 +1,294 @@
+<div class="container">
+  <div class="row">
+    <div class="total-box col-md-3">
+      $<%= @today %>
+      <span>TODAY</span>
+    </div>
+    <div class="total-box col-md-3">
+      $<%= @yesterday %>
+      <span>YESTERDAY</span>
+    </div>
+    <div class="total-box col-md-3">
+      <% if @actualMonth != [] %>
+        $<%= @actualMonth[@actualMonth.length-1][1] %>
+      <% else %>
+        $0
+      <% end %>
+      <span>THIS MONTH</span>
+    </div>
+    <div class="total-box col-md-3">
+      <% if @actualMonth != [] %>
+        $<%= @lastMonth[@lastMonth.length-1][1] %>
+      <% else %>
+        $0
+      <% end %>
+      <span>LAST MONTH</span>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top: 40px;">
+    <div class="box col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">Last 6 months</div>
+        <div class="panel-body">
+          <div id="expenses-chart" style="height: 250px;">
+            <div id="month" style="height: 100%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="box col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">By day</div>
+        <div class="panel-body">
+          <div id="daily-expenses-chart" style="height: 250px;">
+            <div id="day" style="height: 100%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top: 10px;">
+    <div class="box col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">By category</div>
+        <div class="panel-body">
+          <div id="category-chart" style="height: 250px;">
+            <div id="category" style="height: 100%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class=" box col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">Accumulated</div>
+        <div class="panel-body">
+          <div id="month-acc" style="height: 250px;">
+            <div id="accumulated" style="height: 100%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+
+    // Gráfico ultimos seis meses
+    $(document).on('turbolinks:load', function(){
+      var chart1 = new CanvasJS.Chart("month", {
+          animationEnabled: true,
+          backgroundColor: "transparent",
+          legend:{
+            fontColor: "#c1c5c6"
+          },
+          axisX: {
+              interval: 0,
+              intervalType: "year",
+              labelFontColor:"#c1c5c6",
+              lineColor:"#c1c5c6",
+          },
+          axisY:{
+              valueFormatString:"#,##0.##",
+              gridColor: "#c1c5c6",
+              tickColor: "#c1c5c6",
+              lineColor:"transparent",
+              labelFontColor:"#c1c5c6"
+          },
+          toolTip: {
+              shared: true,
+              content: toolTipContent
+          },
+          data: [{
+              type: "stackedColumn",
+              showInLegend: true,
+              color: "#5e6eba",
+              name: "Purchases", 
+              dataPoints: [
+                  { y: <%= @purchase[0] %>, label: "<%= @datesMonth[0][2]+" "+@datesMonth[0][1] %>"},
+                  { y: <%= @purchase[1] %>, label: "<%= @datesMonth[1][2]+" "+@datesMonth[1][1] %>"},
+                  { y: <%= @purchase[2] %>, label: "<%= @datesMonth[2][2]+" "+@datesMonth[2][1] %>"},
+                  { y: <%= @purchase[3] %>, label: "<%= @datesMonth[3][2]+" "+@datesMonth[3][1] %>"},
+                  { y: <%= @purchase[4] %>, label: "<%= @datesMonth[4][2]+" "+@datesMonth[4][1] %>"},
+                  { y: <%= @purchase[5] %>, label: "<%= @datesMonth[5][2]+" "+@datesMonth[5][1] %>"}
+              ]
+              },
+              {        
+                  type: "stackedColumn",
+                  showInLegend: true,
+                  name: "Withdrawals",
+                  color: "#00cc99",
+                  dataPoints: [
+                    { y: <%= @withdrawal[0] %>, label: "<%= @datesMonth[0][2]+" "+@datesMonth[0][1] %>"},
+                    { y: <%= @withdrawal[1] %>, label: "<%= @datesMonth[1][2]+" "+@datesMonth[1][1] %>"},
+                    { y: <%= @withdrawal[2] %>, label: "<%= @datesMonth[2][2]+" "+@datesMonth[2][1] %>"},
+                    { y: <%= @withdrawal[3] %>, label: "<%= @datesMonth[3][2]+" "+@datesMonth[3][1] %>"},
+                    { y: <%= @withdrawal[4] %>, label: "<%= @datesMonth[4][2]+" "+@datesMonth[4][1] %>"},
+                    { y: <%= @withdrawal[5] %>, label: "<%= @datesMonth[5][2]+" "+@datesMonth[5][1] %>"}
+                  ]
+              },
+              {        
+                  type: "stackedColumn",
+                  showInLegend: true,
+                  name: "Transfers",
+                  color: "#df7970",
+                  dataPoints: [
+
+
+                    { y: <%= @transfer[0] %>, label: "<%= @datesMonth[0][2]+" "+@datesMonth[0][1] %>"},
+                    { y: <%= @transfer[1] %>, label: "<%= @datesMonth[1][2]+" "+@datesMonth[1][1] %>"},
+                    { y: <%= @transfer[2] %>, label: "<%= @datesMonth[2][2]+" "+@datesMonth[2][1] %>"},
+                    { y: <%= @transfer[3] %>, label: "<%= @datesMonth[3][2]+" "+@datesMonth[3][1] %>"},
+                    { y: <%= @transfer[4] %>, label: "<%= @datesMonth[4][2]+" "+@datesMonth[4][1] %>"},
+                    { y: <%= @transfer[5] %>, label: "<%= @datesMonth[5][2]+" "+@datesMonth[5][1] %>"}
+                  ]
+              },
+              {        
+                  type: "stackedColumn",
+                  showInLegend: true,
+                  name: "Payments",
+                  color: "#0b8e8e",
+                  dataPoints: [
+                    { y: <%= @payment[0] %>, label: "<%= @datesMonth[0][2]+" "+@datesMonth[0][1] %>"},
+                    { y: <%= @payment[1] %>, label: "<%= @datesMonth[1][2]+" "+@datesMonth[1][1] %>"},
+                    { y: <%= @payment[2] %>, label: "<%= @datesMonth[2][2]+" "+@datesMonth[2][1] %>"},
+                    { y: <%= @payment[3] %>, label: "<%= @datesMonth[3][2]+" "+@datesMonth[3][1] %>"},
+                    { y: <%= @payment[4] %>, label: "<%= @datesMonth[4][2]+" "+@datesMonth[4][1] %>"},
+                    { y: <%= @payment[5] %>, label: "<%= @datesMonth[5][2]+" "+@datesMonth[5][1] %>"}
+                  ]
+          }]
+      });
+      chart1.render();
+      
+      function toolTipContent(e) {
+          var str = "";
+          var total = 0;
+          var str2, str3;
+          for (var i = 0; i < e.entries.length; i++){
+              var  str1 = "<span style= \"color:"+e.entries[i].dataSeries.color + "\"> "+e.entries[i].dataSeries.name+"</span>: $<strong>"+e.entries[i].dataPoint.y+"</strong>bn<br/>";
+              total = e.entries[i].dataPoint.y + total;
+              str = str.concat(str1);
+          }
+          str2 = "<span style = \"color:DodgerBlue;\"><strong>"+(e.entries[0].dataPoint.x).getFullYear()+"</strong></span><br/>";
+          total = Math.round(total * 100) / 100;
+          str3 = "<span style = \"color:Tomato\">Total:</span><strong> $"+total+"</strong>bn<br/>";
+          return (str2.concat(str)).concat(str3);
+      }    
+    
+      // Gráfico Por día
+      var chart2 = new CanvasJS.Chart("day", {
+        animationEnabled: true,
+        backgroundColor: "transparent",
+        legend:{
+          fontColor: "#c1c5c6"
+        },
+        axisX: {
+            labelFontColor:"#c1c5c6",
+            lineColor:"#c1c5c6",
+            interval:1,
+        },
+        axisY:{
+            valueFormatString:"#,##0.##",
+            gridColor: "#c1c5c6",
+            tickColor: "#c1c5c6",
+            lineColor:"transparent",
+            labelFontColor:"#c1c5c6"
+        },
+        data: [
+          {
+            type: "column",
+            dataPoints: [
+              <% @purchases.each do |i| %>
+                { y: <%= i.amount %>, x: <%= i.created_at.strftime("%d") %>, legendText: "Purhases", color: "#5e6eba" },
+              <% end %> 
+              <% @withdrawals.each do |i| %>
+                { y: <%= i.amount %>, x: <%= i.created_at.strftime("%d") %>, legendText: "Withdrawals", color: "#00cc99" },
+              <% end %>
+              <% @transfers.each do |i| %>
+                { y: <%= i.amount %>, x: <%= i.created_at.strftime("%d") %>, legendText: "Transfers", color: "#df7970" },
+              <% end %>
+              <% @payments.each do |i| %>
+                { y: <%= i.amount %>, x: <%= i.created_at.strftime("%d") %>, legendText: "Payments", color: "#0b8e8e" },
+              <% end %>
+            ]
+          }
+        ]
+      });
+      chart2.render();
+
+      // Gráfico Por categoría
+      var chart3 = new CanvasJS.Chart("category", {
+        theme: "light2", // "light1", "light2", "dark1", "dark2"
+        animationEnabled: true,
+        backgroundColor: "transparent",
+        legend:{
+          fontColor: "#c1c5c6"
+        },
+        data: [{
+          type: "pie",
+          startAngle: 25,
+          indexLabelFontSize: 16,
+          indexLabel: "{label}",
+          indexLabelFontColor:"#c1c5c6",
+          dataPoints: [
+            <% @category.each do |i| %>
+              <% if i[0] != 0 %>
+              { y: <%= i[0] %>, label: "<%= i[1] %>" },
+              <% end %>
+            <% end %>
+          ]
+        }]
+      });
+      chart3.render();  
+
+      // Gráfico Acumulado
+      var chart4 = new CanvasJS.Chart("accumulated", {
+        animationEnabled: true,
+        backgroundColor: "transparent",
+        legend:{
+          fontColor: "#c1c5c6"
+        },
+        axisY :{
+          valueFormatString:"#,##0.##",
+          labelFontColor:"#c1c5c6",
+          gridColor: "#c1c5c6",
+          tickColor: "#c1c5c6",
+          lineColor:"transparent"
+        },
+        axisX: {
+          labelFontColor:"#c1c5c6",
+          lineColor:"#c1c5c6"
+        },
+        toolTip: {
+          shared: true
+        },
+        data: [{        
+          type: "stackedArea",
+          showInLegend: true,
+          toolTipContent: "<span style=\"color:#4F81BC\"><strong>{name}: </strong></span> {y}",
+          name: "actualMonth",
+          dataPoints: [
+            { x: 0, y: 0},
+            <% @actualMonth.each do |i| %>
+              { x: <%= i[0] %>, y: <%= i[1] %> },
+            <% end %>
+          ]
+        },
+        {        
+          type: "stackedArea",  
+          name: "lastMonth",
+          toolTipContent: "<span style=\"color:#C0504E\"><strong>{name}: </strong></span> {y}<br><b>Total:<b> #total",
+          showInLegend: true,
+          dataPoints: [ 
+            { x: 0, y: 0},
+            <% @lastMonth.each do |i| %>
+              { x: <%= i[0] %>, y: <%= i[1] %> },
+            <% end %>  
+          ]
+        }]
+      });
+      chart4.render();
+    });
+    
+    </script>
+

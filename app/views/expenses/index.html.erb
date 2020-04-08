@@ -1,17 +1,25 @@
 <div class="container">
   <div class="row">
     <div class="col-md-3">
-      <h4 class="filter-header">Transaction Type <span>Choose to filter</span></h4>
+      <h4 class="filter-header">Transaction Type <span>Select to filter</span></h4>
       <div class="list-group filter-type">
-        <a href="#" class="list-group-item">Purchase</a>
-        <a href="#" class="list-group-item">Withdrawal</a>
+        <a href="#" class="list-group-item type">Purchase</a>
+        <a href="#" class="list-group-item type">Withdrawal</a>
+        <a href="#" class="list-group-item type">Transfer</a>
+        <a href="#" class="list-group-item type">Payment</a>
         <!-- more transaction types -->
       </div>
 
-      <h4 class="filter-header">Categoría <span>Selecciona para filtrar</span></h4>
+      <h4 class="filter-header">Category <span>Select to filter</span></h4>
       <div class="list-group filter-type">
-        <a href="#" class="list-group-item">Restaurants</a>
-        <a href="#" class="list-group-item">Car</a>
+        <a href="#" class="list-group-item category">Restaurants</a>
+        <a href="#" class="list-group-item category">Grocery</a>
+        <a href="#" class="list-group-item category">Car</a>
+        <a href="#" class="list-group-item category">Services</a>
+        <a href="#" class="list-group-item category">Home</a>
+        <a href="#" class="list-group-item category">Education</a>
+        <a href="#" class="list-group-item category">Fun</a>
+        <a href="#" class="list-group-item category">Travel</a>
         <!-- more categories  -->
       </div>
     </div>
@@ -33,15 +41,58 @@
 
       <div class="row" style="margin-top: 20px;">
         <div class="col-md-12">
-          <a href="#" class="btn btn-success pull-left"><span class="glyphicon glyphicon-plus"></span> New Expense</a>
+          <% actualMonth = DateTime.now %>
+          <a href="#" class="btn btn-success pull-left" data-target="#myModalCreate" data-toggle="modal">New Expense</a>
           <h4 class="dropdown pull-right">
-            <button type="button" class="dropdown-toggle btn btn-link" data-toggle="dropdown">April 2016 <span class="caret"></span></button>
+            <button type="button" class="dropdown-toggle btn btn-link" data-toggle="dropdown"><%=actualMonth.strftime("%B")+" "+actualMonth.strftime("%Y") %> <span class="caret"></span></button>
             <ul class="dropdown-menu" role="menu">
-              <li role="presentation"><a href="#">April 2016</a></li>
-              <li role="presentation"><a href="#">March 2016</a></li>
-              <!-- more months -->
+              <% 12.times do |i| %>
+                <li role="presentation"><a href="#"><%=(actualMonth << i).strftime("%B")+" "+(actualMonth << i+1).strftime("%Y") %></a></li>
+              <% end %>
             </ul>
           </h4>
+        </div>
+      </div>
+
+      <!-- Modal1 -->
+      <div class="modal fade" id="myModalCreate" role="dialog">
+        <div class="modal-dialog">
+        
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Expense</h4>
+            </div>
+            <div class="modal-body">
+              <%= form_for @expense1 do |f| %>
+                <div class="form-group">
+                  <%= label_tag :kind, "Type" %>
+                  <%= f.select :kind, [["Purchase","Purchase"], ["Withdrawal","Withdrawal"], ["Transfer","Transfer"], ["Payment","Payment"]], { prompt: "Select..." }, { class: "form-control"} %>
+                </div>
+                <div class="form-group">
+                  <label for="date">Date</label>
+                  <input type="text" class="form-control" id="date" value=<%= Time.now.to_s %> >
+                </div>
+                <div class="form-group concept1">
+                  <%= label_tag :concept, "Concept" %>
+                  <%= f.text_field :concept, class: "form-control concept1" %>
+                </div>
+                <div class="form-group">
+                  <%= label_tag :category, "Category" %>
+                  <%= f.select :category, [["Restaurants","Restaurants"], ["Grocery","Grocery"], ["Car","Car"], ["Services","Services"], ["Home","Home"], ["Education","Education"], ["Fun","Fun"], ["Travel","Travel"]], { prompt: "Select..." }, { class: "form-control"} %>
+                </div>
+                <div class="form-group amount1">
+                  <%= label_tag :amount, "Amount" %>
+                  <%= f.number_field :amount, class: "form-control amount1" %>
+                </div>     
+                <%= f.submit "Create expense", class: "btn btn-primary" %>       
+              <% end %>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -55,29 +106,310 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td class="date">
-              <div class="day">24</div>
-              <div class="month">Apr</div>
-            </td>
-            <td>
-              <div>
-                <span class="type">Purchase</span>
+          <% @expenses.reverse.each_with_index do |i,j| %>
+            <tr>
+              <td class="date">
+                <div class="day"><%= i.created_at.strftime("%d") %></div>
+                <div class="month"><%= i.created_at.strftime("%B") %></div>
+              </td>
+              <td>
+                <div>
+                  <span class="type"><%= i.kind %></span>
+                </div>
+                <div>
+                  <span class="concept"><%= i.concept %></span>
+                </div>
+              </td>
+              <td class="category text-right"><%= i.category %></td>
+              <td class="text-right" style="width: 170px;">
+                <div class="amount"><%= i.amount %></div>
+                <div class="actions">
+                  <a data-target="#myModal<%= j %>" data-toggle="modal"><span class="glyphicon glyphicon-edit"></span> Edit</a>
+                  <a href="/expenses/<%= i.id %>" data-method="delete" data-confirm="Are you sure?"><span class="glyphicon glyphicon-trash"></span> Delete</a>                  
+                <div>
+              </td>
+            </tr>
+            <!-- Modal2 -->
+            <div class="modal fade" id="myModal<%= j %>" role="dialog">
+              <div class="modal-dialog">
+        
+                <!-- Modal content-->
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Expense</h4>
+                  </div>
+                  <div class="modal-body">
+                    <%= form_for i do |f| %>
+                      <div class="form-group">
+                        <%= label_tag :kind, "Type" %>
+                        <%= f.select :kind, [["Purchase","Purchase"], ["Withdrawal","Withdrawal"], ["Transfer","Transfer"], ["Payment","Payment"]], { prompt: i.kind }, { class: "form-control"} %>
+                      </div>
+                      <div class="form-group">
+                        <label for=<%= i.id %>>Date</label>
+                        <input type="text" class="form-control" id=<%= i.id %> value=<%= i.created_at.to_s %> name="date">
+                      </div>
+                      <div class="form-group concept2">
+                        <%= label_tag :concept, "Concept" %>
+                        <%= f.text_field :concept, class: "form-control concept2", value:i.concept, id:"concept"+(i.id.to_s) %>
+                      </div>
+                      <div class="form-group">
+                        <%= label_tag :category, "Category" %>
+                        <%= f.select :category, [["Restaurants","Restaurants"], ["Grocery","Grocery"], ["Car","Car"], ["Services","Services"], ["Home","Home"], ["Education","Education"], ["Fun","Fun"], ["Travel","Travel"]], { prompt: i.category }, { class: "form-control"} %>
+                      </div>
+                      <div class="form-group amount2">
+                        <%= label_tag :amount, "Amount" %>
+                        <%= f.number_field :amount, class: "form-control amount2", value:i.amount %>
+                      </div>     
+                      <%= f.submit " expense", class: "btn btn-primary send" %>       
+                    <% end %>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                  </div>
+                </div>
               </div>
-              <div>
-                <span class="concept">Example concept</span>
-              </div>
-            </td>
-            <td class="category text-right">Restauratns</td>
-            <td class="text-right" style="width: 170px;">
-              <div class="amount">$1,000,000</div>
-              <div class="actions">
-                <a href="#"><span class="glyphicon glyphicon-edit"></span> Edit</a>
-                <a href="#"><span class="glyphicon glyphicon-trash"></span> Delete</a>
-            </td>
-          </tr>
+            </div>
+          <% end %>
         </tbody>
       </table>
     </div>
   </div>
 </div>
+<script type="text/javascript">
+  $("form#new_expense input.btn").on("click", function(e){
+      if($("input.concept1").val() != "" && $("input.amount1").val() == "" ){
+        e.preventDefault();
+        var value=$("input.concept1").val()
+        if ($("div.concept1").hasClass("has-error")){
+          $("div.concept1").removeClass("has-error");
+          $(".alertConcept").remove(); 
+          $("input.concept1").val(value);
+        }
+        if($("div.amount1").hasClass("has-error")==false){
+          $("div.amount1").addClass("has-error");
+          $("div.amount1").append('<div class="alertAmount" style="color:#a94442;">can not be black</div>');
+        }
+      }
+      else if($("input.amount1").val() != "" && $("input.concept1").val() == ""){
+        e.preventDefault();
+        var value=$("input.concept1").val()
+        if($("div.amount1").hasClass("has-error")){
+          $("div.amount1").removeClass("has-error");
+          $(".alertAmount").remove();
+          $("input.concept1").val(value);  
+        }
+        if($("div.concept1").hasClass("has-error")==false){
+          $("div.concept1").addClass("has-error");
+          $("div.concept1").append('<div class="alertConcept" style="color:#a94442;">can not be black</div>');
+        }
+      }
+      else if($("input.concept1").val() == "" && $("input.amount1").val() == ""){
+        e.preventDefault();
+        if($("div.concept1").hasClass("has-error")==false){
+          $("div.concept1").addClass("has-error");
+          $("div.concept1").append('<div class="alertConcept" style="color:#a94442;">can not be black</div>');
+        }
+        if($("div.amount1").hasClass("has-error")==false){
+          $("div.amount1").addClass("has-error");
+          $("div.amount1").append('<div class="alertAmount" style="color:#a94442;">can not be black</div>');
+        }
+      }
+    });
+    
+    
+    // validación formulario editar expense
+    $("input.send").on("click", function(e){
+      
+      if($("input.concept2").val() != "" && $("input.amount2").val() == "" ){
+        e.preventDefault();
+        var value=$("input.concept2").val()
+        if ($("div.concept2").hasClass("has-error")){
+          $("div.concept2").removeClass("has-error");
+          $(".alertConcept").remove(); 
+          $("input.concept2").val(value);
+        }
+        if($("div.amount2").hasClass("has-error")==false){
+          $("div.amount2").addClass("has-error");
+          $("div.amount2").append('<div class="alertAmount" style="color:#a94442;">can not be black</div>');
+        }
+      }
+      else if($("input.amount2").val() != "" && $("input.concept2").val() == ""){
+        e.preventDefault();
+        var value=$("input.concept2").val()
+        if($("div.amount2").hasClass("has-error")){
+          $("div.amount2").removeClass("has-error");
+          $(".alertAmount").remove();
+          $("input.concept2").val(value);  
+        }
+        if($("div.concept2").hasClass("has-error")==false){
+          $("div.concept2").addClass("has-error");
+          $("div.concept2").append('<div class="alertConcept" style="color:#a94442;">can not be black</div>');
+        }
+      }
+      else if($("input.concept2").val() == "" && $("input.amount2").val() == ""){
+        e.preventDefault();
+        if($("div.concept2").hasClass("has-error")==false){
+          $("div.concept2").addClass("has-error");
+          $("div.concept2").append('<div class="alertConcept" style="color:#a94442;">can not be black</div>');
+        }
+        if($("div.amount2").hasClass("has-error")==false){
+          $("div.amount2").addClass("has-error");
+          $("div.amount2").append('<div class="alertAmount" style="color:#a94442;">can not be black</div>');
+        }
+      }
+    });
+    
+    //limpieza de formularios cuando se cancelan
+    $(".close").on("click", function(e){
+      $("div").removeClass("has-error");
+      $(".alertConcept").remove();
+      $(".alertAmount").remove();
+    });
+    
+    $(".btn-default").on("click", function(e){
+      $("div").removeClass("has-error");
+      $(".alertConcept").remove();
+      $(".alertAmount").remove();
+    });
+</script>
+<script type="text/javascript">
+  selectExpenses();
+  
+  //Eventos click
+  $(".type").on("click", function(e){
+      e.preventDefault();
+    
+      if($(this).hasClass("selectType")){
+        $(this).removeClass("selectType");
+        selectExpenses();
+      }
+      else{
+        $(this).addClass("selectType");
+        selectExpenses();
+      }
+    });
+    
+    $(".category").on("click", function(e){
+      e.preventDefault();
+    
+      if($(this).hasClass("selectCategory")){
+        $(this).removeClass("selectCategory");
+        selectExpenses();
+      }
+      else{
+        $(this).addClass("selectCategory");
+        selectExpenses();
+      }
+    });
+    
+    $("ul.dropdown-menu li").on("click", function(e){
+      e.preventDefault();
+    
+      $("button.dropdown-toggle").html($(this).html()+" <span class='caret'>");
+      selectExpenses();
+    });
+    
+    //Funcion que filtra los expenses
+    function selectExpenses(){
+      $("tbody tr").hide();
+    
+      var selectType = [];
+      $(".type").each(function(){
+        if($(this).hasClass("selectType")){
+          selectType.push($(this).text());
+        }
+      });
+      
+      var selectCategory = [];
+      $(".category").each(function(){
+        if($(this).hasClass("selectCategory")){
+          selectCategory.push($(this).text());
+        }
+      });
+      
+      expensesType = [];
+      $("span.type").each(function(){
+        for (var i=0; i<selectType.length; i++){
+          if($(this).text() == selectType[i]){
+            expensesType.push($(this));
+          }    
+        }
+      });
+      
+      expensesCategory = [];
+      $("td.category").each(function(){
+        for (var i=0; i<selectCategory.length; i++){
+          if($(this).text() == selectCategory[i]){
+            expensesCategory.push($(this));
+          }   
+        }
+      });
+      
+      var results1= [];
+      if(expensesCategory.length==0 && expensesType.length==0){
+        $("tbody tr").each(function(){
+          results1.push($(this));
+        })
+      }
+      if(expensesCategory.length==0){
+        for (var i=0; i<expensesType.length; i++){
+          results1.push($("tbody tr").eq($("span.type").index(expensesType[i])));
+        }
+      }
+      else if(expensesType.length==0){
+        for (var i=0; i<expensesCategory.length; i++){
+          results1.push($("tbody tr").eq($("td.category").index(expensesCategory[i])));
+        }
+      }
+      else{
+        for (var i=0; i<expensesType.length; i++){
+          for (var j=0; j<expensesCategory.length; j++){
+            if($("span.type").index(expensesType[i]) == $("td.category").index(expensesCategory[j])){
+              results1.push($("tbody tr").eq($("span.type").index(expensesType[i])));
+            }
+          }
+        }
+      }
+    
+      var month = $("button.dropdown-toggle").text().match(/[a-z]+/i);
+    
+      var results2 = [];
+      
+      for (var i=0; i<results1.length; i++){
+        if($(".month").eq($("tbody tr").index(results1[i])).text() == month){
+          results2.push($("tbody tr").eq($("tbody tr").index(results1[i])));
+        }
+      }
+    
+      for (var i=0; i<results2.length; i++){
+        results2[i].show();
+      }
+    
+      var values  = [];
+    
+      for (var i=0; i<results2.length; i++){
+        values.push(parseInt($("div.amount").eq($("tbody tr").index(results2[i])).text()));
+      }
+    
+      var summary;
+      var average;
+      if(values.length>0){
+        summary = values.reduce((a,b)=>a+b);
+        average = Math.round(summary/values.length);
+      }
+      else{
+        summary=0;
+        average=0;
+      }
+      
+      $("div.summary-value").eq(0).text(summary.toString());
+      $("div.summary-value").eq(1).text(values.length.toString());
+      $("div.summary-value").eq(2).text(average.toString());
+    }
+</script>
+
+
+
+
+

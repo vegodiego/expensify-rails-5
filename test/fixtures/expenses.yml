@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  kind: Payment
+  concept: Payment1
+  category: Home
+  amount: 100000
+
+two:
+  kind: Purchase
+  concept: Purchase1
+  category: Car
+  amount: 1000000

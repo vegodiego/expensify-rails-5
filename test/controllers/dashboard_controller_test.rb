@@ -1,8 +1,9 @@
 require 'test_helper'
 
 class DashboardControllerTest < ActionDispatch::IntegrationTest
-  test "should get index" do
-    get dashboard_index_url
+
+  test "get index: is successful" do
+    get root_path
     assert_response :success
   end
 
